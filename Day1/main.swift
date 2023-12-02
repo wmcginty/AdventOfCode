@@ -6,10 +6,6 @@
 //
 
 import AdventKit
-import Algorithms
-import Collections
-import Foundation
-import Parsing
 
 enum Digit: String, CaseIterable {
     case one, two, three, four, five, six, seven, eight, nine
