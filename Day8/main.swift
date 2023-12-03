@@ -11,12 +11,11 @@ import Collections
 import Foundation
 import Parsing
 
-measure(part: .one) {
+measure(part: .one) { logger in
     /* Part One */
 }
 
-measure(part: .two) {
+measure(part: .two) { logger in
     /* Part Two */
 }
-
 
