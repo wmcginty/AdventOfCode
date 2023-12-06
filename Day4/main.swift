@@ -42,8 +42,8 @@ let card = Parse(input: Substring.self, Card.init) {
     Whitespace()
     Many { Int.parser() } separator: { Whitespace(.horizontal) }.map(Set.init)
 }
-let cards = Many { card } separator: { "\n" }
 
+let cards = Many { card } separator: { "\n" }
 let parsedCards = try cards.parse(String.input)
 let reference: [Int: Card] = Dictionary(uniqueKeysWithValues: parsedCards.map { ($0.id, $0) })
 
@@ -55,9 +55,8 @@ measure(part: .one) {
         .reduce(0, +)
 }
 
-//Brute force works, but is slow
 measure(part: .two) {
-    /* Part Two */
+    /* Part Two - Bruce Force! */
     
     var queue = Deque<Card>(parsedCards)
     var count = 0
@@ -78,7 +77,7 @@ measure(part: .two) {
 
 // If you just keep track of the count of each kind of card you have, it's... much faster
 measure(part: .two) {
-    /* Part Two */
+    /* Part Two - Optimized */
     
     var countsByID: [Int: Int] = [:]
     for card in parsedCards {
