@@ -11,7 +11,7 @@ import SwiftUI
 struct Day3VisualizationApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView(input: .input)
+            ContentView(input: .testInput)
         }
     }
 }

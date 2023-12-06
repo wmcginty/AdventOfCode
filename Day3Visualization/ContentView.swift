@@ -58,7 +58,7 @@ struct ContentView: View {
                             ForEach(schematic.grid.columns(for: row), id: \.self) { (column: Int) in
                                 let coordinate = Coordinate(row: row, column: column)
                                 Text(schematic.grid[coordinate].description)
-                                    .font(.caption2.monospaced())
+                                    .font(.body.monospaced())
                                     .fixedSize()
                                     .background(solveStep.background(for: coordinate, isLastStep: solveStep == solver?.solveSteps.last))
                             }
