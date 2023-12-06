@@ -42,12 +42,16 @@ extension String {
 }
 
 measure(part: .one) {
+    /* Part One */
+    
     return String.input.lines()
         .compactMap { $0.firstAndLastDigitsCombined }
         .reduce(0, +)
 }
 
 measure(part: .two) {
+    /* Part Two */
+    
     return String.input.lines()
         .compactMap { $0.firstAndLastDigitsCombinedIncludingWords }
         .reduce(0, +)
