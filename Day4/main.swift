@@ -12,10 +12,12 @@ import Parsing
 
 struct Card {
     
+    // MARK: - Properties
     let id: Int
     let winningNumbers: Set<Int>
     let containedNumbers: Set<Int>
     
+    // MARK: - Interface
     var containedWinningNumbers: Set<Int> { return containedNumbers.intersection(winningNumbers) }
     var value: Int {
         let count = containedWinningNumbers.count
@@ -51,7 +53,7 @@ measure(part: .one) {
         .reduce(0, +)
 }
 
-//Brute force works, but is dangerously slow
+//Brute force works, but is slow
 measure(part: .two) {
     /* Part Two */
     
@@ -91,5 +93,3 @@ measure(part: .two) {
     
     return countsByID.values.reduce(0, +)
 }
-
-

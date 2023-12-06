@@ -42,9 +42,11 @@ enum Contents: CustomStringConvertible {
 
 struct EngineSchematic {
     
+    // MARK: - Properties
     let grid: Grid<Contents>
     let symbols: [Coordinate: Contents]
     
+    // MARK: - Initializer
     init(contents: [[Contents]]) {
         let grid = Grid(contents: contents)
         let symbolsDict: [Coordinate: Contents] = Dictionary(uniqueKeysWithValues: grid.allCoordinates.compactMap {
@@ -56,6 +58,7 @@ struct EngineSchematic {
         self.symbols = symbolsDict
     }
       
+    // MARK: - Interface
     func allCoordinates(forNumberString string: String, endingAtColumn column: Int, inRow row: Int) -> [Coordinate] {
         return (0..<string.count).map { Coordinate(row: row, column: column - $0) }
     }
@@ -161,10 +164,12 @@ let schematic = EngineSchematic(contents: try lines.parse(String.input))
 
 measure(part: .one) {
     /* Part One */
+    
     return schematic.sumOfPartNumbers
 }
 
 measure(part: .two) {
     /* Part Two */
+    
     return schematic.sumOfGearRatios
 }

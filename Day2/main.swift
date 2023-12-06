@@ -9,13 +9,13 @@ import AdventKit
 import Parsing
 
 struct CubeCounts {
+    // MARK: - Properties
     var red: Int = 0
     var green: Int = 0
     var blue: Int = 0
     
-    var power: Int {
-        return red * green * blue
-    }
+    // MARK: - Interface
+    var power: Int { return red * green * blue }
     
     subscript(color: Grab.Element.Color) -> Int {
         get {
@@ -41,18 +41,22 @@ struct Grab {
             case blue, red, green
         }
         
+        // MARK: - Properties
         let number: Int
         let color: Color
     }
     
+    // MARK: - Properties
     let elements: [Element]
 }
 
 struct Game {
     
+    // MARK: - Properties
     let id: Int
     let grabs: [Grab]
     
+    // MARK: - Interface
     func isPossible(givenCubeCounts cubeCounts: CubeCounts) -> Bool {
         return grabs.allSatisfy {
             $0.elements.allSatisfy { $0.number <= cubeCounts[$0.color] }
@@ -71,10 +75,11 @@ let grabParser = Many { elementParser } separator: { ", " }.map(Grab.init)
 let grabsParser = Many { grabParser } separator: { "; " }
 let gameParser = Parse(Game.init) { "Game "; Int.parser(); ": "; grabsParser }
 let gamesParser = Many { gameParser } separator: { "\n" }
-
 let games = try gamesParser.parse(String.input)
 
 measure(part: .one) {
+    /* Part One */
+    
     let possibleGamesSum = games
         .filter { $0.isPossible(givenCubeCounts: .init(red: 12, green: 13, blue: 14)) }
         .map(\.id)
@@ -84,6 +89,8 @@ measure(part: .one) {
 }
 
 measure(part: .two) {
+    /* Part Two */
+    
     let possibleGamesSum = games
         .map { $0.neededNumberOfCubesToPlay() }
         .map(\.power)
