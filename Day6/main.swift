@@ -78,17 +78,22 @@ let parser = Parse(input: Substring.self, Races.init) {
 
 let races = try parser.parse(String.input)
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     return races.races.map { $0.possibleWinningStrategyCount() }.reduce(1, *)
 }
 
-measure(part: .two) { logger in
+measure(part: .one) {
+    /* Part One - Binary Search */
+    return races.races.map { $0.optimizedPossibleWinningStrategyCount() }.reduce(1, *)
+}
+
+measure(part: .two) {
     /* Part Two */
     return races.combinedRace.possibleWinningStrategyCount()
 }
 
-measure(part: .two) { logger in
-    /* Part Two - Binary Search? */
+measure(part: .two) {
+    /* Part Two - Binary Search */
     return races.combinedRace.optimizedPossibleWinningStrategyCount()
 }
