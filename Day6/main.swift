@@ -39,6 +39,29 @@ struct Race {
             .map(distance(ifHeldForMilliseconds:))
             .filter{ $0 > recordDistance }.count
     }
+    
+    func optimizedPossibleWinningStrategyCount() -> Int {
+        var low = 0
+        var high = time / 2
+        
+        if distance(ifHeldForMilliseconds: high) < recordDistance {
+            //if it doesn't work at the midpoint, it's not going to work ever
+            return 0
+        }
+        
+        while low + 1 < high {
+            let mid = (low + high) / 2
+            if distance(ifHeldForMilliseconds: mid) >= recordDistance {
+                high = mid
+            } else {
+                low = mid
+            }
+        }
+        
+        let first = low + 1
+        let last = time / 2 + (time / 2 - first) + (time.isMultiple(of: 2) ? 0 : 1)
+        return last - first + 1
+    }
 }
 
 let parser = Parse(input: Substring.self, Races.init) {
@@ -63,4 +86,9 @@ measure(part: .one) { logger in
 measure(part: .two) { logger in
     /* Part Two */
     return races.combinedRace.possibleWinningStrategyCount()
+}
+
+measure(part: .two) { logger in
+    /* Part Two - Binary Search? */
+    return races.combinedRace.optimizedPossibleWinningStrategyCount()
 }
