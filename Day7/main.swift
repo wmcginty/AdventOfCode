@@ -118,44 +118,43 @@ struct Game {
 extension Array where Element == Game.Card {
     
     var kind: Game.Kind {
-        let containsJoker = contains { $0 == .joker }
-        if containsJoker {
-            var transformedHands: Set<[Game.Card]> = []
-            for (index, card) in zip(indices, self) {
-                if card == .joker {
-                    for newCard in Game.Card.allValidInJokerGames {
-                        var modifiedCards = self
-                        modifiedCards[index] = newCard
-                        
-                        transformedHands.insert(modifiedCards)
-                    }
-                }
-            }
-            
-            return transformedHands.map(\.kind).min() ?? .highCard
-            
-        } else if Set(self).count == 1 {
+        if Set(self).count == 1 {
             return .fiveOfAKind
-        } else {
-            let dict = Dictionary(grouping: self, by: { $0.rawValue })
-            if dict.contains(where: { $0.value.count == 4 }) {
-                return .fourOfAKind
-            } else if dict.contains(where: { $0.value.count == 3}) {
-                if dict.contains(where: { $0.value.count == 2 }) {
-                    return .fullHouse
-                } else {
-                    return .threeOfAKind
-                }
-            } else {
-                let pairs = dict.filter { $0.value.count == 2 }
-                if pairs.count == 2 {
-                    return .twoPair
-                } else if pairs.count == 1 {
-                    return .pair
-                } else {
-                    return .highCard
-                }
-            }
+        }
+        
+        let jokerCount = filter { $0 == .joker }.count
+        let grouped = Dictionary(grouping: filter { $0 != .joker }, by: { $0.rawValue })
+        let commonCounts = grouped.values.map(\.count).sorted(by: { $0 > $1 })
+        let highestCommonCount = commonCounts.first ?? 0
+        let secondHighestCommonCount = commonCounts.endIndex > 1 ? commonCounts[1] : 0
+        
+        if jokerCount + highestCommonCount >= 5 {
+            return .fiveOfAKind
+        }
+        
+        if jokerCount + highestCommonCount >= 4 {
+            return .fourOfAKind
+        }
+        
+        switch (highestCommonCount, jokerCount) {
+        case (3, 0):
+            // No jokers, but 3+2 is a full house
+            return secondHighestCommonCount == 2 ? .fullHouse : .threeOfAKind
+        case (2, 1):
+            // 1 joker and 2 pair - make a full house
+            return secondHighestCommonCount == 2 ? .fullHouse : .threeOfAKind
+        case (2, 0):
+            // no jokers, but 2 pair
+            return secondHighestCommonCount == 2 ? .twoPair : .pair
+        case (1, 2): 
+            // 2 jokers, make three of a kind
+            return .threeOfAKind
+        case (1, 1): 
+            // 1 joker, make pair
+            return .pair
+        default: 
+            //this hand sucks
+            return .highCard
         }
     }
 }
@@ -184,18 +183,8 @@ measure(part: .one) { logger in
 measure(part: .two) { logger in
     /* Part Two */
     
-    var jokerRounds: [Game.Round] = []
-    for (offset, round) in game.rounds.enumerated() {
-        let jokerRound = Game.Round(hand: round.hand.replacingJacks, bid: round.bid)
-        jokerRounds.append(jokerRound)
-        
-        if offset > 0, offset.isMultiple(of: 500) {
-            logger.fault("Finished modifying \(offset)/\(game.rounds.count) hands.")
-        }
-    }
-    
-    logger.fault("Finished modying all hands.")
-    return Game(rounds: jokerRounds).rounds.sorted().reversed().enumerated()
+    let jokerGame =  Game(rounds: game.rounds.map { .init(hand: $0.hand.replacingJacks, bid: $0.bid )})
+    return jokerGame.rounds.sorted().reversed().enumerated()
         .map { ($0.offset + 1) * $0.element.bid }
         .reduce(0, +)
 }
