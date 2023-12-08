@@ -109,5 +109,5 @@ measure(part: .two) { logger in
     /* Part Two */
     let startLocations: [String] = map.nodes.filter { $0.id.hasSuffix("A") }.map(\.id)
     let stepCounts = startLocations.map { map.steps(from: $0, endPredicate: { $0.hasSuffix("Z") }) }
-    return stepCounts.reduce(stepCounts[0]) { $0.leastCommonMultiple(with: $1) }
+    return stepCounts.leastCommonMultiple ?? 0
 }
