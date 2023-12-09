@@ -29,7 +29,7 @@ struct Histories {
         let values: [Int]
         
         // MARK: - Interface
-        func interpolationSequences() -> [[Int]] {
+        func nextValue() -> Int {
             var sequences = [values]
             var latestSequence = values
             
@@ -39,12 +39,6 @@ struct Histories {
                 sequences.append(diffs)
                 latestSequence = diffs
             }
-            
-            return sequences
-        }
-        
-        func nextValue() -> Int {
-            var sequences = interpolationSequences()
             
             // Add a zero to the end of the last generated list
             sequences[sequences.lastIndex] = sequences[sequences.lastIndex] + [0]
@@ -61,26 +55,6 @@ struct Histories {
             }
             
             return sequences[0][sequences[0].lastIndex]
-        }
-        
-        func previousValue() -> Int {
-            var sequences = interpolationSequences()
-            
-            // Add a zero to the beginning of the last generated list
-            sequences[sequences.lastIndex] = [0] + sequences[sequences.lastIndex]
-            
-            // Walk up the lists, prepending the 'interpolated' value
-            var index = sequences.count - 2
-            while index >= 0 {
-                var current = sequences[index]
-                let diffs = sequences[index + 1]
-                
-                current.insert(current[0] - diffs[0], at: 0)
-                sequences[index] = current
-                index -= 1
-            }
-            
-            return sequences[0][0]
         }
     }
     
@@ -105,7 +79,8 @@ measure(part: .one) { logger in
 
 measure(part: .two) { logger in
     /* Part Two */
-    return history.histories
-        .map { $0.previousValue() }
+    history.histories
+        .map { Histories.History(values: $0.values.reversed()) }
+        .map { $0.nextValue() }
         .reduce(0, +)
 }
