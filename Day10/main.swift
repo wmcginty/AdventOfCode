@@ -140,6 +140,5 @@ measure(part: .one) { logger in
 
 measure(part: .two) { logger in
     /* Part Two */
-    let loopEnclosed = pipeMap.loopEnclosedCoordinates
-    return loopEnclosed.count
+    return pipeMap.loopEnclosedCoordinates.count
 }
