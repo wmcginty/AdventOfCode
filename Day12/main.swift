@@ -15,112 +15,101 @@ enum Condition: String, CaseIterable {
     case operational = "."
     case damaged = "#"
     case unknown = "?"
+
+    func isCaseOrUnknown(_ test: Self) -> Bool {
+        return self == test || self == .unknown
+    }
 }
 
 struct Row {
-    
-    // MARK: - Row.Status
-    struct Status: Hashable {
-        
-        // MARK: - Properties
+
+    // MARK: - Row.State
+    struct State: Hashable {
         var conditionIndex: Int = 0
-        var countsIndex: Int = 0
-        var consecutiveDamaged: Int = 0
+        var countIndex: Int = 0
+        var streak: Int = 0
     }
-    
+
     // MARK: - Properties
     let gearConditions: [Condition]
     let counts: [Int]
-    
+
     // MARK: - Interface
-    var unfolded: Row {
-        return Row(gearConditions: Array(Array(repeating: gearConditions + [.unknown], count: 5).flatMap { $0 }.dropLast()),
-                   counts: Array(repeating: counts, count: 5).flatMap { $0 })
+    func unfolded(times: Int) -> Row {
+        return Row(gearConditions: Array(repeating: gearConditions, count: times).interspersed(with: [.unknown]).flatMap { $0 },
+                   counts: Array(repeating: counts, count: times).flatMap { $0 })
     }
-    
-    var countOfSolutions: Int {
-        func countOfSolutions(_ status: Status, answerTable: inout [Status: Int]) -> Int {
-            if let ans = answerTable[status] {
-                return ans
+
+    var countOfValidSolutions: Int {
+        func countOfValidSolutions(given state: State, cache: inout [State: Int]) -> Int {
+            if let cached = cache[state] {
+                return cached
             }
-            
-            if status.conditionIndex == gearConditions.count {
+
+            if state.conditionIndex == gearConditions.count {
                 // We have finished iterating over all the gears
-                
-                if status.countsIndex == counts.count, status.consecutiveDamaged == 0 {
-                    //We have finished iterating over all the `counts`, and there is no unaccounted for damaged gears. Valid.
+
+                if state.countIndex == counts.count, state.streak == 0 {
+                    // Valid: We have accounted for all the expected streaks, and there is no current streak.
                     return 1
-                } else if status.countsIndex == counts.count - 1, counts[status.countsIndex] == status.consecutiveDamaged {
-                    // We are on the last `count` and the current amount of damaged gears matches that last `count`. Valid.
+
+                } else if state.countIndex == counts.count - 1, state.streak == counts[state.countIndex] {
+                    // Valid: There is 1 final unaccounted for streak, and it matches the current streak.
                     return 1
+
                 } else {
-                    // Invalid
+                    // Invalid: All other ending cases.
                     return 0
                 }
             }
-            
-            // The status isn't done iterating, ensure we capture all the possibilities
+
             var answer = 0
-            for condition in [Condition.operational, .damaged] {
-                if gearConditions[status.conditionIndex] == condition || gearConditions[status.conditionIndex] == .unknown {
-                    /* We only want to do further processing when the next gear is the status one we're looking at (`condition`), or `.unknown`, so we can consider it as either damaged or operational. */
-                    
-                    if condition == .operational && status.consecutiveDamaged == 0 {
-                        // This is an operational gear, and there is no existing streak of damaged gears. Move to the next gear.
-                        answer += countOfSolutions(.init(conditionIndex: status.conditionIndex + 1,
-                                                         countsIndex: status.countsIndex,
-                                                         consecutiveDamaged: 0), 
-                                                   answerTable: &answerTable)
-                        
-                        
-                    } else if condition == .operational,
-                              status.consecutiveDamaged > 0,
-                              status.countsIndex < counts.count,
-                              counts[status.countsIndex] == status.consecutiveDamaged {
-                        /* This is an operational gear, there is an existing streak of damaged gears, there are remaining `counts` (meaning this streak is expected),
-                         and the current amount of damaged gears matches that corresponding `count`. Move to the next gear, move to the next count and reset the streak. */
-                        answer += countOfSolutions(.init(conditionIndex: status.conditionIndex + 1,
-                                                         countsIndex: status.countsIndex + 1,
-                                                         consecutiveDamaged: 0), 
-                                                   answerTable: &answerTable)
-                        
-                    } else if condition == .damaged {
-                        // This is a damaged gear. Move to the next index, and increment the current streak.
-                        answer += countOfSolutions(.init(conditionIndex: status.conditionIndex + 1,
-                                                         countsIndex: status.countsIndex,
-                                                         consecutiveDamaged: status.consecutiveDamaged + 1), 
-                                                   answerTable: &answerTable)
-                    }
+            let currentCondition = gearConditions[state.conditionIndex]
+            if currentCondition.isCaseOrUnknown(.operational) {
+                // This is an operational/unknown gear (treat it as though it's operational).
+
+                if state.streak == 0 {
+                    // There is no existing streak of damaged gears. Move to the next gear.
+                    answer += countOfValidSolutions(given: .init(conditionIndex: state.conditionIndex + 1, countIndex: state.countIndex, streak: 0), 
+                                                    cache: &cache)
+                } else if state.streak > 0, state.countIndex < counts.count, counts[state.countIndex] == state.streak {
+                    // There was a streak of damaged gears, and there are remaining streaks expected. Finally, the streak that is about to end matches the next expected streak. Move to the next gear, next expected streak, and reset the current streak.
+                    answer += countOfValidSolutions(given: .init(conditionIndex: state.conditionIndex + 1, countIndex: state.countIndex + 1, streak: 0), 
+                                                    cache: &cache)
                 }
             }
-            
-            // Put this answer in the cache, so if we see it again we don't have to recompute
-            answerTable[status] = answer
+
+            if currentCondition.isCaseOrUnknown(.damaged) {
+                // This is an damaged/unknown gear (treat it as though it's damaged). Move to the next gear, and increment the current streak.
+                answer += countOfValidSolutions(given: .init(conditionIndex: state.conditionIndex + 1, countIndex: state.countIndex, streak: state.streak + 1), 
+                                                cache: &cache)
+            }
+
+            cache[state] = answer
             return answer
         }
-        
-        // Start at the beginning of the row, passing along an answer cache
-        var answerTable: [Status: Int] = [:]
-        return countOfSolutions(.init(), answerTable: &answerTable)
+
+        var cache: [State: Int] = [:]
+        return countOfValidSolutions(given: State(), cache: &cache)
     }
 }
 
 let conditionParser = Parse(input: Substring.self) { Condition.parser() }
 let conditionsParser = Many { conditionParser } terminator: { Whitespace() }
 let countsParser = Many { Parse(input: Substring.self) { Int.parser() } } separator: { "," }
-let lineParser = Parse(Row.init) {
-    conditionsParser
-    countsParser
-}
+let lineParser = Parse(Row.init) { conditionsParser; countsParser }
 let inputParser = Many { lineParser } separator: { Whitespace(1, .vertical) }
 let rows = try inputParser.parse(String.input)
 
 measure(part: .one) { logger in
     /* Part One */
-    return rows.map(\.countOfSolutions).reduce(0, +)
+    return rows.map(\.countOfValidSolutions).reduce(0, +)
 }
 
 measure(part: .two) { logger in
     /* Part Two */
-    return rows.map(\.unfolded.countOfSolutions).reduce(0, +)
+    return rows
+        .map { $0.unfolded(times: 5) }
+        .map(\.countOfValidSolutions)
+        .reduce(0, +)
 }
