@@ -18,10 +18,15 @@ enum Content: String, CaseIterable, CustomStringConvertible, Equatable {
     var description: String { return rawValue }
 }
 
-let contentParser = Parse(input: Substring.self) { Content.parser() }
-let lineParser = Many { contentParser } terminator: { Peek { Whitespace(.vertical) } }
-let sectionParser = Many(1...) { lineParser } separator: { Whitespace(1, .vertical); Peek { Content.parser() } }.map(Grid.init)
-let inputParser = Many { sectionParser } separator: { Whitespace(2, .vertical) } terminator: { End() }
+let lineParser = Many(1...) { Content.parser(of: Substring.self) } terminator: {
+    OneOf {
+        Whitespace(1, .vertical)
+        End()
+    }
+}
+
+let sectionParser = Many { lineParser }.map(Grid.init)
+let inputParser = Many { sectionParser } separator: { Whitespace(1, .vertical) }
 
 let grids = try inputParser.parse(String.input)
 
