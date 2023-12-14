@@ -69,8 +69,12 @@ extension Grid<Content> {
         while cycle < count {
             if let previous = seen[self] {
                 let difference = cycle - previous
-                if cycle + difference < count {
-                    cycle += difference
+                let remainingIterations = count  - cycle
+                let jump = remainingIterations - (remainingIterations % difference)
+                cycle += jump
+
+                if jump > 0 {
+                    continue
                 }
             }
     

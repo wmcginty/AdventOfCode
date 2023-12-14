@@ -6,7 +6,16 @@
       "location" : "https://github.com/wmcginty/adventkit",
       "state" : {
         "branch" : "main",
-        "revision" : "c7b9be18b38a4dfa8e46ac18c7d80044d59ee08a"
+        "revision" : "3e05e81521921ec8c8a4ec30cacd0330f42e5109"
+      }
+    },
+    {
+      "identity" : "pow",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/EmergeTools/Pow",
+      "state" : {
+        "revision" : "c24472ed8303295104d562919f5c74ae58a41ab7",
+        "version" : "1.0.2"
       }
     },
     {

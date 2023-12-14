@@ -16,7 +16,7 @@ struct ContentView: View {
     @State private var isSolving: Bool = false
     
     var body: some View {
-        TimelineView(.animation) { context in
+        TimelineView(.animation(minimumInterval: nil, paused: false)) { context in
             if let solver {
                 let elapsed = context.date.timeIntervalSince(solver.startDate)
                 let solveStep = solver.solveStep(for: elapsed)
