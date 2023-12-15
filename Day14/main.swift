@@ -43,7 +43,7 @@ extension Grid<Content> {
     
     mutating func tilt(to direction: Coordinate.Direction) {
         for row in rows {
-            let columns = columns(for: row)
+            let columns = columns(forRow: row)
             for col in columns {
                 let coordinate = Coordinate(row: direction == .south ? rows.upperBound - 1 - row  : row,
                                             column: direction == .east ? columns.upperBound - 1 - col : col)

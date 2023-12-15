@@ -38,7 +38,7 @@ class Solver {
         
         for row in grid.rows {
             var numString = ""
-            for column in grid.columns(for: row) {
+            for column in grid.columns(forRow: row) {
                 let coordinate = Coordinate(row: row, column: column)
                 let content = grid[coordinate]
                 
@@ -46,7 +46,7 @@ class Solver {
                     numString += content.description
                     
                     // this is the last column, handle now
-                    if column == grid.lastColumnIndex(for: row) {
+                    if column == grid.lastColumnIndex(forRow: row) {
                         let coordinates = engineSchematic.allCoordinates(forNumberString: numString, endingAtColumn: column, inRow: row)
                         let neighbors = Set(coordinates.flatMap { $0.neighbors() }.filter { !coordinates.contains($0) })
                         let isSymbolAdjacent = neighbors.contains { engineSchematic.symbols[$0] != nil }

@@ -46,7 +46,7 @@ extension Grid<Content> {
 
 let grid = try gridParser.parse(String.input)
 let emptyRows = grid.rows.filter { grid.contentsOfRow(at: $0).allSatisfy { $0 == .empty } }
-let emptyCols = grid.columns(for: 0).filter { grid.contentsOfColumn(at: $0).allSatisfy { $0 == .empty } }
+let emptyCols = grid.columns(forRow: 0).filter { grid.contentsOfColumn(at: $0).allSatisfy { $0 == .empty } }
 
 measure(part: .one) { logger in
     /* Part One */

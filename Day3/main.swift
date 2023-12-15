@@ -87,7 +87,7 @@ struct EngineSchematic {
         var answer = 0
         for row in grid.rows {
             var numString = ""
-            for column in grid.columns(for: row) {
+            for column in grid.columns(forRow: row) {
                 let coordinate = Coordinate(row: row, column: column)
                 let content = grid[coordinate]
                 
@@ -95,7 +95,7 @@ struct EngineSchematic {
                     numString += content.description
                     
                     // this is the last column, handle now
-                    if column == grid.lastColumnIndex(for: row) {
+                    if column == grid.lastColumnIndex(forRow: row) {
                         if isNumberStringSymbolAdjacent(numString, endingAtColumn: column, inRow: row) {
                             let number = Int(numString)!
                             answer += number
@@ -124,7 +124,7 @@ struct EngineSchematic {
         for row in grid.rows {
             
             var numString = ""
-            for column in grid.columns(for: row) {
+            for column in grid.columns(forRow: row) {
                 let coordinate = Coordinate(row: row, column: column)
                 let content = grid[coordinate]
                 
@@ -132,7 +132,7 @@ struct EngineSchematic {
                     numString += content.description
                     
                     // this is the last column, handle now
-                    if column == grid.lastColumnIndex(for: row) {
+                    if column == grid.lastColumnIndex(forRow: row) {
                         storeGearAdjaceNumberString(numString, endingAtColumn: column, inRow: row, gears: &gears)
                         numString = ""
                     }

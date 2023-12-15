@@ -1,6 +1,6 @@
 //
 //  Input.swift
-//  Day25
+//  Day20
 //
 //  Created by Will McGinty on 12/24/22.
 //

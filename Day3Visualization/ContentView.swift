@@ -55,7 +55,7 @@ struct ContentView: View {
                 Grid(horizontalSpacing: 0, verticalSpacing: 0) {
                     ForEach(schematic.grid.rows, id: \.self) { (row: Int) in
                         GridRow {
-                            ForEach(schematic.grid.columns(for: row), id: \.self) { (column: Int) in
+                            ForEach(schematic.grid.columns(forRow: row), id: \.self) { (column: Int) in
                                 let coordinate = Coordinate(row: row, column: column)
                                 Text(schematic.grid[coordinate].description)
                                     .font(.body.monospaced())

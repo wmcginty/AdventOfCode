@@ -35,7 +35,7 @@ extension Grid<Content> {
     
     func verticalSymmetryLineIndices(withErrorAllowance error: Int) -> [Int] {
         func isVerticallySymmetrical(across index: Int, withOffset offset: Int, errorAllowance: Int) -> Bool {
-            let columnCount = columnCount(for: 0)
+            let columnCount = columnCount(forRow: 0)
             let indexLeft = index - offset
             let indexRight = index + 1 + offset
             
@@ -55,7 +55,7 @@ extension Grid<Content> {
             return isVerticallySymmetrical(across: index, withOffset: offset + 1, errorAllowance: errorAllowance - diffCount)
         }
         
-        return columns(for: 0).filter { isVerticallySymmetrical(across: $0, withOffset: 0, errorAllowance: error) }
+        return columns(forRow: 0).filter { isVerticallySymmetrical(across: $0, withOffset: 0, errorAllowance: error) }
     }
     
     func horizontalSymmetryLineIndices(withErrorAllowance error: Int) -> [Int] {
