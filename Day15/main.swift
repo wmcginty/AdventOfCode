@@ -114,4 +114,3 @@ measure(part: .two) { logger in
     return initializationSequence.sumOfFocusingPower
 }
 
-
