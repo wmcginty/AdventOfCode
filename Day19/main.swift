@@ -10,7 +10,6 @@ import Algorithms
 import Collections
 import Foundation
 import Parsing
-import os
 
 enum Category: String, CaseIterable {
     case extremelyCool = "x"
@@ -123,7 +122,7 @@ let (workflows, parts) = try inputParser.parse(String.input)
 let workflowDictionary = Dictionary(uniqueKeysWithValues: workflows.map { ($0.name, $0) })
 let initialWorkflow = workflowDictionary["in"]!
 
-measure(part: .one) { (logger: Logger) -> Int64 in
+measure(part: .one) { () -> Int64 in
     /* Part One */
 
     func outcome(for part: Part, in workflow: Workflow?) -> Bool {
@@ -139,7 +138,7 @@ measure(part: .one) { (logger: Logger) -> Int64 in
     return parts.filter { outcome(for: $0, in: nil) }.map(\.ratingSum).reduce(0, +)
 }
 
-measure(part: .two) { (logger: Logger) -> Int64 in
+measure(part: .two) { () -> Int64 in
     /* Part Two */
     struct State: Hashable {
         let workflowName: String
