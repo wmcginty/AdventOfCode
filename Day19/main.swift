@@ -182,6 +182,38 @@ measure(part: .one) { logger in
 
 measure(part: .two) { logger in
     /* Part Two */
+    
+    struct State: Hashable {
+        let workflowName: String
+        let extremelyCoolRange: ClosedRange<Int>
+        let musicalRange: ClosedRange<Int>
+        let aerodynamicRange: ClosedRange<Int>
+        let shinyRange: ClosedRange<Int>
+        let accepted: Bool?
+    }
+    
+    var answer = 0
+    var deque = Deque<State>([.init(workflowName: "in", extremelyCoolRange: 1...4000, musicalRange: 1...4000, aerodynamicRange: 1...4000, shinyRange: 1...4000, accepted: nil)])
+    while let next = deque.popFirst() {
+        if let accepted = next.accepted {
+            if accepted {
+                answer += next.extremelyCoolRange.count * next.musicalRange.count * next.aerodynamicRange.count * next.shinyRange.count
+            }
+            
+            continue
+        }
+        
+        if next.extremelyCoolRange.isEmpty || next.musicalRange.isEmpty || next.aerodynamicRange.isEmpty || next.shinyRange.isEmpty {
+            continue
+        }
+        
+        let workflow = workflowDictionary[next.workflowName]!
+        for rule in workflow.rules {
+            // for each rule, create a state that passes (and goes to that outcome) or fails and moves to the next rule
+        }
+        
+        
+    }
 }
 
 
