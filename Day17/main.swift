@@ -11,91 +11,59 @@ import Collections
 import Foundation
 import Parsing
 
-//extension Grid<Int> {
-//    
-//   
-//    
-//    struct Distanced<T: Hashable>: Comparable, Hashable {
-//        let state: T
-//        let distance: Int
-//        
-//        public static func < (lhs: Distanced, rhs: Distanced) -> Bool {
-//            return lhs.distance < rhs.distance
-//        }
-//    }
-//    
-//    func minimumHeatLoss(from coordinate: Coordinate, to target: Coordinate, part1: Bool) -> Int? {
-//        var dictionary: Dictionary<State, Int> = [:]
-//        var priorityQueue = Heap<Distanced<State>>([.init(state: .init(coordinate: coordinate, 
-//                                                                       direction: nil,
-//                                                                       consecutiveInDirection: 0),
-//                                                          distance: 0)])
-//        
-//        while let next = priorityQueue.popMin() {
-//            if dictionary[next.state] != nil {
-//                continue  // We already have a distance for this state, we can skip re-computation
-//            }
-//            dictionary[next.state] = next.distance
-//            
-//            if next.state.coordinate == target {
-//                return next.distance
-//            }
-//            
-//            let validDirections: [Coordinate.Direction] = .cardinal.filter { $0 != next.state.direction?.inverse }
-//            for direction in validDirections {
-//                let nextCoordinate = next.state.coordinate.neighbor(in: direction)
-//                let newDirection = direction
-//                let newConsecutive = newDirection == next.state.direction ? next.state.consecutiveInDirection + 1 : 1
-//                
-//                var isValid: Bool
-//                if part1 {
-//                    isValid = newConsecutive <= 3
-//                } else {
-//                    isValid = newConsecutive <= 10 && (newDirection == next.state.direction || next.state.consecutiveInDirection >= 4 || next.state.consecutiveInDirection == 0)
-//                }
-//                
-//                if let cost = grid.contents(at: nextCoordinate), isValid {
-//                    priorityQueue.insert(.init(state: .init(coordinate: nextCoordinate,
-//                                                            direction: newDirection,
-//                                                            consecutiveInDirection: newConsecutive),
-//                                               distance: next.distance + cost))
-//                }
-//            }
-//        }
-//        
-//        return nil
-//    }
-//}
+struct State: Hashable {
+    
+    enum Part {
+        case one, two
+    }
+
+    let coordinate: Coordinate
+    let direction: Coordinate.Direction?
+    let consecutiveInDirection: Int
+    
+    func nextStates(in grid: Grid<Int>, for part: Part) -> [DijkstraPathfinder<State, Int>.StateCost] {
+        func isValidState(for part: Part, previousConsecutiveStraight: Int, newConsecutiveStraight: Int, didChangeDirection: Bool) -> Bool {
+            switch part {
+            case .one: return newConsecutiveStraight <= 3
+            case .two: return newConsecutiveStraight <= 10
+                && (!didChangeDirection || previousConsecutiveStraight >= 4 || previousConsecutiveStraight == 0)
+            }
+        }
+        
+        let validDirections: [Coordinate.Direction] = .cardinal.filter { $0 != direction?.inverse }
+        return validDirections.compactMap { newDirection in
+            let nextCoordinate = coordinate.neighbor(in: newDirection)
+            let newConsecutive = newDirection == direction ? consecutiveInDirection + 1 : 1
+            let isValid = isValidState(for: part,
+                                       previousConsecutiveStraight: consecutiveInDirection, newConsecutiveStraight: newConsecutive,
+                                       didChangeDirection: direction != newDirection)
+
+            guard let cost = grid.contents(at: nextCoordinate), isValid else { return nil }
+            return .init(state: .init(coordinate: nextCoordinate, direction: newDirection, consecutiveInDirection: newConsecutive), cost: cost)
+        }
+    }
+}
 
 let lines = String.input.lines()
 let contents = lines.map { $0.map( { Int(String($0))! }) }
 let grid = Grid(contents: contents)
 
-struct State: Hashable {
-    let coordinate: Coordinate
-    let direction: Coordinate.Direction?
-    let consecutiveInDirection: Int
-}
-
 measure(part: .one) { logger in
     /* Part One */
-    let pathfinder = DijkstraPathfinder<State, Int>.distances { (currentState: State) in
-        let validDirections: [Coordinate.Direction] = .cardinal.filter { $0 != currentState.direction?.inverse }
-        return validDirections.compactMap { direction in
-            let nextCoordinate = currentState.coordinate.neighbor(in: direction)
-            let newDirection = direction
-            let newConsecutive = newDirection == currentState.direction ? currentState.consecutiveInDirection + 1 : 1
-            let isValid = newConsecutive <= 3
-            
-            guard let cost = grid.contents(at: nextCoordinate), isValid else { return nil }
-            return .init(state: .init(coordinate: nextCoordinate, direction: newDirection, consecutiveInDirection: newConsecutive), cost: cost)
-        }
-    }
+    let pathfinder = AStarPathfinder<State, Int>.distances { $0.nextStates(in: grid, for: .one) }
     
-//    return grid.minimumHeatLoss(from: .zero, to: .init(row: grid.lastRowIndex, column: grid.lastColumnIndex(forRow: 0)), part1: true) ?? 0
+    let initialState = State(coordinate: .zero, direction: nil, consecutiveInDirection: 0)
+    let target = grid.bottomRight
+    return pathfinder.shortestCost(from: initialState, toTarget: { $0.coordinate == target },
+                                   heuristic: { $0.coordinate.manhattanDistance(to: target) }) ?? 0
 }
 
 measure(part: .two) { logger in
     /* Part Two */
-    return grid.minimumHeatLoss(from: .zero, to: .init(row: grid.lastRowIndex, column: grid.lastColumnIndex(forRow: 0)), part1: false) ?? 0
+    let pathfinder = AStarPathfinder<State, Int>.distances { $0.nextStates(in: grid, for: .two) }
+    
+    let initialState = State(coordinate: .zero, direction: nil, consecutiveInDirection: 0)
+    let target = grid.bottomRight
+    return pathfinder.shortestCost(from: initialState, toTarget: { $0.coordinate == target },
+                                   heuristic: { $0.coordinate.manhattanDistance(to: target) }) ?? 0
 }
