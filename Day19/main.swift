@@ -115,20 +115,13 @@ struct Workflow {
             }
         }
         
-        fatalError("Ran out of rules running: \(self).")
+        fatalError("Ran out of rules running (which shouldn't be possible because the last is always 'else'): \(self).")
     }
 }
 
 let (workflows, parts) = try inputParser.parse(String.input)
 let workflowDictionary = Dictionary(uniqueKeysWithValues: workflows.map { ($0.name, $0) })
 let initialWorkflow = workflowDictionary["in"]!
-
-extension Range<Int64> {
-
-    func intersected(with other: Range<Int64>) -> Range<Int64> {
-        return intersection(with: other) ?? 0..<0
-    }
-}
 
 measure(part: .one) { (logger: Logger) -> Int64 in
     /* Part One */
@@ -148,30 +141,42 @@ measure(part: .one) { (logger: Logger) -> Int64 in
 
 measure(part: .two) { (logger: Logger) -> Int64 in
     /* Part Two */
-
     struct State: Hashable {
         let workflowName: String
-        let extremelyCoolRange: Range<Int64>
-        let musicalRange: Range<Int64>
-        let aerodynamicRange: Range<Int64>
-        let shinyRange: Range<Int64>
+        let extremelyCoolRange: Range<Int64>?
+        let musicalRange: Range<Int64>?
+        let aerodynamicRange: Range<Int64>?
+        let shinyRange: Range<Int64>?
         let accepted: Bool?
+
+        var hasNilRange: Bool {
+            return extremelyCoolRange == nil || musicalRange == nil || aerodynamicRange == nil || shinyRange == nil
+        }
+
+        var totalUniqueCombinations: Int64 {
+            guard let extremelyCoolRange, let musicalRange, let aerodynamicRange, let shinyRange else { return 0 /* The ranges go nil when they're empty, meaning there is no possible part that satisfies */ }
+            return Int64(extremelyCoolRange.count) * Int64(musicalRange.count) * Int64(aerodynamicRange.count) * Int64(shinyRange.count)
+        }
 
         func updating(range: Range<Int64>, for category: Category) -> Self {
             return .init(workflowName: workflowName,
-                         extremelyCoolRange: category == .extremelyCool ? range.intersected(with: extremelyCoolRange) : extremelyCoolRange,
-                         musicalRange:  category == .musical ? range.intersected(with: musicalRange) : musicalRange,
-                         aerodynamicRange:  category == .aerodynamic ? range.intersected(with: aerodynamicRange) : aerodynamicRange,
-                         shinyRange:  category == .shiny ? range.intersected(with: shinyRange) : shinyRange, accepted: accepted)
+                         extremelyCoolRange: category == .extremelyCool ? extremelyCoolRange?.intersection(with: range) : extremelyCoolRange,
+                         musicalRange:  category == .musical ? musicalRange?.intersection(with: range) : musicalRange,
+                         aerodynamicRange:  category == .aerodynamic ? aerodynamicRange?.intersection(with: range) : aerodynamicRange,
+                         shinyRange:  category == .shiny ? shinyRange?.intersection(with: range) : shinyRange, accepted: accepted)
         }
     }
-    
+
     var answer: Int64 = 0
     var deque = Deque<State>([.init(workflowName: "in", extremelyCoolRange: 1..<4001, musicalRange: 1..<4001, aerodynamicRange: 1..<4001, shinyRange: 1..<4001, accepted: nil)])
     while let next = deque.popFirst() {
+        if next.hasNilRange {
+            continue
+        }
+
         if let accepted = next.accepted {
             if accepted {
-                answer += Int64(next.extremelyCoolRange.count) * Int64(next.musicalRange.count) * Int64(next.aerodynamicRange.count) * Int64(next.shinyRange.count)
+                answer += next.totalUniqueCombinations
             }
             
             continue
@@ -181,6 +186,7 @@ measure(part: .two) { (logger: Logger) -> Int64 in
 
         var state = next
         for rule in workflow.rules {
+
             // Pass this rule, and move to it's outcome
             switch rule {
             case .otherwise(let outcome):
@@ -190,6 +196,7 @@ measure(part: .two) { (logger: Logger) -> Int64 in
                 deque.append(newState)
 
             case .rule(let category, _, _, let outcome):
+                // Find the range of possibilities to pass this rule, and intersect that with the state's current range. If no intersection, nil out that range.
                 let successRange = rule.validRange(for: category)
                 let updatedState = state.updating(range: successRange, for: category)
 
@@ -206,6 +213,7 @@ measure(part: .two) { (logger: Logger) -> Int64 in
                 continue
 
             case .rule(let category, _, _, _):
+                // Find the range of possibilities to fail this rule, and intersect that with the state's current range. If no intersection, nil out that range.
                 let failureRange = rule.failureRange(for: category)
                 state = state.updating(range: failureRange, for: category)
                 continue
