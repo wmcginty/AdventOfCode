@@ -13,82 +13,72 @@ import Parsing
 
 struct Pulse {
     
+    // MARK: - Pulse.Kind
     enum Kind: String {
         case low, high
     }
     
+    // MARK: - Properties
     let kind: Kind
     let sender: String
     let destination: String
 }
 
 struct Module {
+
+    // MARK: - Module.Kind
     enum Kind: String, CaseIterable {
-        
-        /// Flip-flop modules (prefix %) are either on or off; they are initially off. If a flip-flop module receives a high pulse, it is ignored and nothing happens. However, if a flip-flop module receives a low pulse, it flips between on and off. If it was off, it turns on and sends a high pulse. If it was on, it turns off and sends a low pulse.
         case flipFlop = "%"
-        
-        /// Conjunction modules (prefix &) remember the type of the most recent pulse received from each of their connected input modules; they initially default to remembering a low pulse for each input. When a pulse is received, the conjunction module first updates its memory for that input. Then, if it remembers high pulses for all inputs, it sends a low pulse; otherwise, it sends a high pulse.
         case conjunction = "&"
-        
-        /// There is a single broadcast module (named broadcaster). When it receives a pulse, it sends the same pulse to all of its destination modules.
         case broadcaster
         case test
     }
     
+    // MARK: - Properties
     let kind: Kind
     let name: String
     let destinations: [String]
-    
+
+    private var flipFlopOnOff = false
+    private var conjunctionPulsesReceived: [String: Pulse.Kind] = [:]
+
+    // MARK: - Initializer
     init(kind: Kind, name: String?, destinations: [String]) {
         self.kind = kind
         self.name = name ?? kind.rawValue
         self.destinations = destinations
     }
-    
-    private var flipFlopOnOff = false
-    private var conjunctionPulsesReceived: [String: Pulse.Kind] = [:]
-    
+
+    // MARK: - Interface
+    var inputs: [String] { return Array(conjunctionPulsesReceived.keys) }
+    var lastReceivedAllHighPulses: Bool { return conjunctionPulsesReceived.values.allSatisfy { $0 == .high } }
+
     func send(pulse: Pulse.Kind) -> [Pulse] {
         return destinations.map { .init(kind: pulse, sender: name, destination: $0) }
     }
     
-    mutating func connect(inputs: [String]) {
+    mutating func connect(to inputs: [String]) {
         for input in inputs {
             conjunctionPulsesReceived[input] = .low
         }
     }
-    
-    
-    
+
     mutating func handle(pulse: Pulse) -> [Pulse] {
-//        debugPrint("\(String(describing: pulse.sender)) -\(pulse.kind.rawValue)-> \(pulse.destination)")
-        
         switch kind {
         case .test: return []
         case .broadcaster: return destinations.map { .init(kind: pulse.kind, sender: name, destination: $0) }
         case .flipFlop:
-            if pulse.kind == .high {
-                return []
-            } else {
-                flipFlopOnOff.toggle()
-            }
-            
-            let pulseToSend: Pulse.Kind = flipFlopOnOff ? .high : .low
-            return destinations.map { .init(kind: pulseToSend, sender: name, destination: $0) }
-            
+            guard pulse.kind == .low else { return [] }
+            flipFlopOnOff.toggle()
+
+            return destinations.map { .init(kind: flipFlopOnOff ? .high : .low, sender: name, destination: $0) }
+
         case .conjunction:
             conjunctionPulsesReceived[pulse.sender] = pulse.kind
-            
-            let pulseToSend: Pulse.Kind = conjunctionPulsesReceived.values.allSatisfy { $0 == .high } ? .low : .high
-            return destinations.map { .init(kind: pulseToSend, sender: name, destination: $0) }
+            return destinations.map { .init(kind: lastReceivedAllHighPulses ? .low : .high, sender: name, destination: $0) }
         }
     }
-    
-    var allHighStoredReceived: Bool {
-        return conjunctionPulsesReceived.values.allSatisfy { $0 == .high }
-    }
-    
+
     static let parser = Parse(input: Substring.self, Module.init) {
         Kind.parser()
         Optionally {
@@ -99,130 +89,124 @@ struct Module {
     }
 }
 
-let inputParser = Many { Module.parser } separator: { Whitespace(.vertical) }
-let modules = try inputParser.parse(String.input)
+struct Modules {
 
-//measure(part: .one) { logger in
-//    /* Part One */
-//    
-//    var moduleDictionary = Dictionary(uniqueKeysWithValues: modules.map { ($0.name, $0) })
-//
-//    var inputs: [String: [String]] = [:]
-//    for module in modules {
-//        for destination in module.destinations {
-//            inputs[destination, default: []].append(module.name)
-//        }
-//    }
-//
-//    for (module, inputList) in inputs {
-//        moduleDictionary[module]?.connect(inputs: inputList)
-//    }
-//
-//    
-//    let maxButtonPushes = 1000
-//    var buttonPushes = 1
-//    
-//    var lowPulsesSent = 1
-//    var highPulsesSent = 0
-//    
-//    let initialPulse = Pulse(kind: .low, sender: "button", destination: "broadcaster")
-//    
-//    var deque = Deque<Pulse>([initialPulse])
-//    while let next = deque.popFirst() {
-//        var destination = moduleDictionary[next.destination] ?? Module(kind: .test, name: next.destination, destinations: [])
-//        
-//        // get a record of the pulses the destination eneds to send in response
-//        let nextPulses = destination.handle(pulse: next)
-//        lowPulsesSent += nextPulses.filter { $0.kind == .low }.count
-//        highPulsesSent  += nextPulses.filter { $0.kind == .high }.count
-//        
-//        //update the dictionary with the module thta just handled the pulse
-//        moduleDictionary[next.destination] = destination
-//        
-//        if deque.isEmpty && nextPulses.isEmpty && buttonPushes < maxButtonPushes {
-//            buttonPushes += 1
-//            lowPulsesSent += 1
-//            deque.append(initialPulse)
-//        }
-//        
-//        deque.append(contentsOf: nextPulses)
-//    }
-//    
-//    return lowPulsesSent * highPulsesSent
-//}
+    // MARK: - Properties
+    let list: [Module]
+    var dictionary: [String: Module]
 
-measure(part: .two) { logger in
-    /* Part Two */
-    
-    var moduleDictionary = Dictionary(uniqueKeysWithValues: modules.map { ($0.name, $0) })
+    // MARK: - Initializer
+    init(list: [Module]) {
+        self.list = list
+        self.dictionary = Dictionary(uniqueKeysWithValues: list.map { ($0.name, $0) })
 
-    var inputs: [String: [String]] = [:]
-    for module in modules {
-        for destination in module.destinations {
-            inputs[destination, default: []].append(module.name)
+        connectModuleInputs()
+    }
+
+    var buttonPulse: Pulse { return Pulse(kind: .low, sender: "button", destination: "broadcaster") }
+
+    mutating func connectModuleInputs() {
+        let inputs: [String: [String]] = list.reduce(into: [:]) { partialResult, module in
+            for destination in module.destinations {
+                partialResult[destination, default: []].append(module.name)
+            }
         }
+
+        inputs.forEach { dictionary[$0]?.connect(to: $1) }
     }
 
-    for (module, inputList) in inputs {
-        moduleDictionary[module]?.connect(inputs: inputList)
+    func inputs(toConjuctionModuleWithName name: String) -> [String] {
+        return dictionary[name]?.inputs ?? []
     }
-    
-//    let maxButtonPushes = 1000
+}
+
+let inputParser = Many { Module.parser } separator: { Whitespace(.vertical) }.map(Modules.init)
+
+try measure(part: .one) { logger in
+    /* Part One */
+    var modules = try inputParser.parse(String.input)
+
     var buttonPushes = 1
-    
     var lowPulsesSent = 1
     var highPulsesSent = 0
-    
-    let initialPulse = Pulse(kind: .low, sender: "button", destination: "broadcaster")
-    
-    let importantInputs: [String] = inputs["dn"] ?? []
-    var lastHigh: [String: Int] = [:]
-    var cycleLength: [String: Int] = [:]
-    
-    var deque = Deque<Pulse>([initialPulse])
+    let maxButtonPushes = 1000
+
+    var deque = Deque<Pulse>([modules.buttonPulse])
     while let next = deque.popFirst() {
-        var destination = moduleDictionary[next.destination] ?? Module(kind: .test, name: next.destination, destinations: [])
-        
-        // get a record of the pulses the destination eneds to send in response
+        // Find the module in the dictionary, if it doesn't exist create a new 'test' module to send pulses to
+        var destination = modules.dictionary[next.destination] ?? Module(kind: .test, name: next.destination, destinations: [])
+
+        // Instruct the destination to handle the pulse it has been sent, which will generate a new set of pulses.
         let nextPulses = destination.handle(pulse: next)
-        
-        // if all the inputs to the conjunction input to rx receive 1+ lows, they will send a high. which then cause the input to RX to send a low
-        if importantInputs.contains(where: { $0 == destination.name }), !destination.allHighStoredReceived {
-            
-            if let last = lastHigh[destination.name], cycleLength[destination.name] == nil {
-                cycleLength[destination.name] = buttonPushes - last
-                print(cycleLength.keys.count, cycleLength.keys)
-            } else {
-                lastHigh[destination.name] = buttonPushes
-            }
-            
-            if cycleLength.keys.count == 4 {
-                let values = cycleLength.map { $0.value }
-                return values.leastCommonMultiple ?? -1
-               
-            }
-        }
-                
         lowPulsesSent += nextPulses.filter { $0.kind == .low }.count
         highPulsesSent  += nextPulses.filter { $0.kind == .high }.count
         
-        if nextPulses.contains(where: { $0.destination == "rx" && $0.kind == .low }) {
-            return buttonPushes
-        }
-        
-        //update the dictionary with the module thta just handled the pulse
-        moduleDictionary[next.destination] = destination
-        
-        if deque.isEmpty && nextPulses.isEmpty {
+        // Update the module that just handled the pulse in storage
+        modules.dictionary[next.destination] = destination
+
+        // If we've hit the end of a button press cycle, press the button again if applicable
+        if deque.isEmpty && nextPulses.isEmpty && buttonPushes < maxButtonPushes {
             buttonPushes += 1
             lowPulsesSent += 1
-            deque.append(initialPulse)
+            deque.append(modules.buttonPulse)
+        }
+        
+        // Enqueue the new pulses to be handled
+        deque.append(contentsOf: nextPulses)
+    }
+    
+    return lowPulsesSent * highPulsesSent
+}
+
+try measure(part: .two) { logger in
+    /* Part Two */
+    var modules = try inputParser.parse(String.input)
+
+    var buttonPushes = 1
+    let watchedInputs: [String] = modules.inputs(toConjuctionModuleWithName: "dn")
+    var lastHighPulse: [String: Int] = [:]
+    var highPulseCycleLength: [String: Int] = [:]
+
+    var deque = Deque<Pulse>([modules.buttonPulse])
+    while let next = deque.popFirst() {
+        // Find the module in the dictionary, if it doesn't exist create a new 'test' module to send pulses to
+        var destination = modules.dictionary[next.destination] ?? Module(kind: .test, name: next.destination, destinations: [])
+
+        // Instruct the destination to handle the pulse it has been sent, which will generate a new set of pulses.
+        let nextPulses = destination.handle(pulse: next)
+        
+        /* This relies on the fact that 'rx' is fed by 1 conjunction module ('dn'), which is fed by 4 conjunction modules in independent small cycles.
+         The idea is to figure out how many button presses it takes each of these cycles to repeat, then find the LCM of those 4 cycles.
+         Each cycle is when these inputs to the input to 'rx' send a HIGH pulse, which means the input to 'rx' sends a LOW pulse to 'rx'.*/
+        if watchedInputs.contains(where: { $0 == destination.name }), !destination.lastReceivedAllHighPulses {
+
+            if let last = lastHighPulse[destination.name], highPulseCycleLength[destination.name] == nil {
+                // Cycle detected in one of the 4 important input conjunction modules.
+                highPulseCycleLength[destination.name] = buttonPushes - last
+            } else {
+                // First high pulse from one of the 4 important input conjunction modules.
+                lastHighPulse[destination.name] = buttonPushes
+            }
+            
+            // Now that all 4 have cycled, we can find the LCM - which should be our answer.
+            if highPulseCycleLength.keys.count == 4 {
+                return highPulseCycleLength.map(\.value).leastCommonMultiple ?? -1
+
+            }
+        }
+
+        // Update the module that just handled the pulse in storage
+        modules.dictionary[next.destination] = destination
+
+        // If we've hit the end of a button press cycle, press the button again
+        if deque.isEmpty && nextPulses.isEmpty {
+            deque.append(modules.buttonPulse)
+            buttonPushes += 1
         }
         
         deque.append(contentsOf: nextPulses)
     }
-    
-    return 0
-//    return lowPulsesSent * highPulsesSent
+
+    return -1
 }
 

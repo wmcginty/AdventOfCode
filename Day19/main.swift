@@ -140,6 +140,7 @@ measure(part: .one) { () -> Int64 in
 
 measure(part: .two) { () -> Int64 in
     /* Part Two */
+
     struct State: Hashable {
         let workflowName: String
         let extremelyCoolRange: Range<Int64>?
@@ -222,5 +223,3 @@ measure(part: .two) { () -> Int64 in
 
     return answer
 }
-
-
