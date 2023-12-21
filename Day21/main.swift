@@ -23,6 +23,7 @@ let lines = String.input.lines()
 let contents = lines.map { $0.map { Content(rawValue: String($0))! } }
 let grid = Grid(contents: contents)
 
+// MARK: - Grid + Convenience
 extension Grid<Content> {
     
     struct State: Hashable {
@@ -30,7 +31,7 @@ extension Grid<Content> {
         let coordinate: Coordinate
         let mapCoordinate: Coordinate
     }
-    
+
     var start: Coordinate { return allCoordinates.first { self[$0] == .start }! }
     
     func reachableGardensFromCenter(inSteps steps: Int) -> Int {
@@ -91,27 +92,11 @@ measure(part: .one) { logger in
 }
 
 measure(part: .two) { logger -> Int in
-    func quadraticSolve(for zero: Int, one: Int, two: Int, x: Int) -> Int {
-        let a0 = zero
-        let a1 = one
-        let a2 = two
-        
-        let b0 = a0
-        let b1 = a1 - a0
-        let b2 = a2 - a1
-        
-        return b0 + b1 * x + (x * (x - 1) / 2) * (b2 - b1)
-    }
-    
     let goalSteps: Int = 26501365
     let gWidth = grid.columnCount(forRow: 0)
     
-    // x = width of input grid, f(x) = number of gardens reachable after x steps.
-    let xs = (0..<3).map { 65 + $0 * gWidth }
-    let ys = xs.map { grid.reachableGardensFromCenter(inSteps: $0) }
-    
-    // use the quadratic equation
-    return quadraticSolve(for: ys[0], one: ys[1], two: ys[2], x: goalSteps / gWidth)
+    // n = width of grid, x = number of steps, f(x) = number of gardens reachable after x steps.
+    let xs = (0..<3).map { (gWidth / 2) + $0 * gWidth } //n/2, 3n/2, 5n/2
+    let ys = xs.map { grid.reachableGardensFromCenter(inSteps: $0) } //f(n/2), f(3n/2), f(5n/2)
+    return Quadratic.interpolatedValue(givenF0: ys[0], f1: ys[1], f2: ys[2], x: goalSteps / gWidth)
 }
-
-
