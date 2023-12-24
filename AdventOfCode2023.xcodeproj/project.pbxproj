@@ -153,6 +153,7 @@
 		B46B85092B1CF97700CA13D4 /* Parsing in Frameworks */ = {isa = PBXBuildFile; productRef = B46B85082B1CF97700CA13D4 /* Parsing */; };
 		B46B850B2B1D1AC400CA13D4 /* Solver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46B850A2B1D1AC400CA13D4 /* Solver.swift */; };
 		B4B39C1B2B360BE600DEC524 /* Parse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B39C1A2B360BE600DEC524 /* Parse.swift */; };
+		B4B39C222B3802EF00DEC524 /* Parse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B39C212B3802EF00DEC524 /* Parse.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -381,6 +382,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		B4B39C292B38048400DEC524 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -479,6 +490,9 @@
 		B46B85042B1CF93700CA13D4 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		B46B850A2B1D1AC400CA13D4 /* Solver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Solver.swift; sourceTree = "<group>"; };
 		B4B39C1A2B360BE600DEC524 /* Parse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parse.swift; sourceTree = "<group>"; };
+		B4B39C212B3802EF00DEC524 /* Parse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parse.swift; sourceTree = "<group>"; };
+		B4B39C2B2B38070400DEC524 /* d24_p2.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = d24_p2.py; sourceTree = "<group>"; };
+		B4B39C2C2B38079F00DEC524 /* input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = input.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1049,7 +1063,9 @@
 		0EAE1E982AF9B0F100C05583 /* Day24 */ = {
 			isa = PBXGroup;
 			children = (
+				B4B39C2D2B3807AD00DEC524 /* Python */,
 				0EAE1E992AF9B0F100C05583 /* main.swift */,
+				B4B39C212B3802EF00DEC524 /* Parse.swift */,
 				0EAE1ED12AF9B23100C05583 /* Input.swift */,
 			);
 			path = Day24;
@@ -1101,6 +1117,15 @@
 				B46B84FD2B1CF77E00CA13D4 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		B4B39C2D2B3807AD00DEC524 /* Python */ = {
+			isa = PBXGroup;
+			children = (
+				B4B39C2B2B38070400DEC524 /* d24_p2.py */,
+				B4B39C2C2B38079F00DEC524 /* input.txt */,
+			);
+			path = Python;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1619,6 +1644,7 @@
 				0EAE1E932AF9B0F100C05583 /* Sources */,
 				0EAE1E942AF9B0F100C05583 /* Frameworks */,
 				0EAE1E952AF9B0F100C05583 /* CopyFiles */,
+				B4B39C292B38048400DEC524 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -2081,6 +2107,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0EAE1ED22AF9B23100C05583 /* Input.swift in Sources */,
+				B4B39C222B3802EF00DEC524 /* Parse.swift in Sources */,
 				0EAE1E9A2AF9B0F100C05583 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
