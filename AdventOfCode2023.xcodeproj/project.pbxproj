@@ -493,6 +493,8 @@
 		B4B39C212B3802EF00DEC524 /* Parse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parse.swift; sourceTree = "<group>"; };
 		B4B39C2B2B38070400DEC524 /* d24_p2.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = d24_p2.py; sourceTree = "<group>"; };
 		B4B39C2C2B38079F00DEC524 /* input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = input.txt; sourceTree = "<group>"; };
+		B4F15C182B39549400580E93 /* input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = input.txt; sourceTree = "<group>"; };
+		B4F15C192B3954C600580E93 /* d25_p1.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = d25_p1.py; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1074,6 +1076,7 @@
 		0EAE1EA32AF9B0F600C05583 /* Day25 */ = {
 			isa = PBXGroup;
 			children = (
+				B4F15C172B39540500580E93 /* Python */,
 				0EAE1EA42AF9B0F600C05583 /* main.swift */,
 				0EAE1EA92AF9B18F00C05583 /* Input.swift */,
 			);
@@ -1124,6 +1127,15 @@
 			children = (
 				B4B39C2B2B38070400DEC524 /* d24_p2.py */,
 				B4B39C2C2B38079F00DEC524 /* input.txt */,
+			);
+			path = Python;
+			sourceTree = "<group>";
+		};
+		B4F15C172B39540500580E93 /* Python */ = {
+			isa = PBXGroup;
+			children = (
+				B4F15C182B39549400580E93 /* input.txt */,
+				B4F15C192B3954C600580E93 /* d25_p1.py */,
 			);
 			path = Python;
 			sourceTree = "<group>";
