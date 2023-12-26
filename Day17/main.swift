@@ -48,22 +48,22 @@ let lines = String.input.lines()
 let contents = lines.map { $0.map( { Int(String($0))! }) }
 let grid = Grid(contents: contents)
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     let pathfinder = AStarPathfinder<State, Int>.distances { $0.nextStates(in: grid, for: .one) }
     
     let initialState = State(coordinate: .zero, direction: nil, consecutiveInDirection: 0)
     let target = grid.bottomRight
     return pathfinder.shortestCost(from: initialState, toTarget: { $0.coordinate == target },
-                                   heuristic: { $0.coordinate.manhattanDistance(to: target) }) ?? 0
+                                   heuristic: { $0.coordinate.manhattanDistance(to: target) })
 }
 
-measure(part: .two) { logger in
+measure(part: .two) {
     /* Part Two */
     let pathfinder = AStarPathfinder<State, Int>.distances { $0.nextStates(in: grid, for: .two) }
     
     let initialState = State(coordinate: .zero, direction: nil, consecutiveInDirection: 0)
     let target = grid.bottomRight
     return pathfinder.shortestCost(from: initialState, toTarget: { $0.coordinate == target },
-                                   heuristic: { $0.coordinate.manhattanDistance(to: target) }) ?? 0
+                                   heuristic: { $0.coordinate.manhattanDistance(to: target) })
 }

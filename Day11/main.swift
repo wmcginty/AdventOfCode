@@ -48,12 +48,12 @@ let grid = try gridParser.parse(String.input)
 let emptyRows = grid.rows.filter { grid.contentsOfRow(at: $0).allSatisfy { $0 == .empty } }
 let emptyCols = grid.columns(forRow: 0).filter { grid.contentsOfColumn(at: $0).allSatisfy { $0 == .empty } }
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     return grid.distancesBetweenAllPairsOfGalaxies(withEmptyRows: emptyRows, emptyColumns: emptyCols, expansionFactor: 2)
 }
 
-measure(part: .two) { logger in
+measure(part: .two) {
     /* Part Two */
     return grid.distancesBetweenAllPairsOfGalaxies(withEmptyRows: emptyRows, emptyColumns: emptyCols, expansionFactor: 1_000_000)
 }

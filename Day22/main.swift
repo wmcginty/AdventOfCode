@@ -189,12 +189,12 @@ let brickDescriptions = try inputParser.parse(String.input)
 let bricks = brickDescriptions.map(Brick.init)
 let brickStack = BrickStack(brickSnapshot: bricks)
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     return brickStack.countOfDisintegratableBricks
 }
 
-measure(part: .two) { logger in
+measure(part: .two) {
     /* Part Two */
     return brickStack.bricks.reduce(0) { $0 + brickStack.countOfBricksToFallAfterDisintegration(of: $1) }
 }

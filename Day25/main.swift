@@ -37,6 +37,6 @@ for (key, value) in componentDictionary {
     print(key, value)
 }
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Sigh. It was honestly easier to learn some more Python and use a library... */
 }

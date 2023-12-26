@@ -88,13 +88,13 @@ extension Grid<Content> {
 var partOne = try inputParser.parse(String.input)
 var partTwo = partOne
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     partOne.tilt(to: .north)
     return partOne.totalLoadOnNorthSupports
 }
 
-measure(part: .two) { logger in
+measure(part: .two) {
     /* Part Two */
     partTwo.tiltCycles(ofCount: 1_000_000_000)
     return partTwo.totalLoadOnNorthSupports

@@ -94,7 +94,7 @@ struct CollisionBounds {
 }
 
 let hailstones = try inputParser.parse(String.input)
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     let collisionBounds = CollisionBounds(xRange: 200000000000000...400000000000000, yRange: 200000000000000...400000000000000)
 

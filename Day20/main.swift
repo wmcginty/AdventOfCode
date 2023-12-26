@@ -122,7 +122,7 @@ struct Modules {
 
 let inputParser = Many { Module.parser } separator: { Whitespace(.vertical) }.map(Modules.init)
 
-try measure(part: .one) { logger in
+try measure(part: .one) {
     /* Part One */
     var modules = try inputParser.parse(String.input)
 
@@ -158,7 +158,7 @@ try measure(part: .one) { logger in
     return lowPulsesSent * highPulsesSent
 }
 
-try measure(part: .two) { logger in
+try measure(part: .two) {
     /* Part Two */
     var modules = try inputParser.parse(String.input)
 

@@ -86,12 +86,12 @@ extension Grid<Content> {
     }
 }
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     return grid.reachableGardensFromCenter(inSteps: 64)
 }
 
-measure(part: .two) { logger -> Int in
+measure(part: .two) {
     let goalSteps: Int = 26501365
     let gWidth = grid.columnCount(forRow: 0)
     

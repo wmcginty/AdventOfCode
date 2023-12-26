@@ -166,7 +166,7 @@ let roundParser = Parse(Game.Round.init) {
 let gameParser = Many { roundParser } separator: { Whitespace(1, .vertical) }.map(Game.init)
 var game = try gameParser.parse(String.input)
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     
     return game.rounds.sorted().reversed().enumerated()
@@ -174,7 +174,7 @@ measure(part: .one) { logger in
         .reduce(0, +)
 }
 
-measure(part: .two) { logger in
+measure(part: .two) {
     /* Part Two */
     
     let jokerGame =  Game(rounds: game.rounds.map { .init(hand: $0.hand.replacingJacks, bid: $0.bid )})

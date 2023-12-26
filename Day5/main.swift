@@ -128,7 +128,7 @@ measure(part: .one) {
     
     return parsedAlmanac.seedsToBePlanted
         .map { parsedAlmanac.location(for: $0) }
-        .min() ?? 0
+        .min()
 }
 
 measure(part: .two) {

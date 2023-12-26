@@ -70,14 +70,14 @@ let historyParser = Parse(input: Substring.self, Histories.init) {
 
 let history = try historyParser.parse(String.input)
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     return history.histories
         .map { $0.nextValue() }
         .reduce(0, +)
 }
 
-measure(part: .two) { logger in
+measure(part: .two) {
     /* Part Two */
     history.histories
         .map { Histories.History(values: $0.values.reversed()) }

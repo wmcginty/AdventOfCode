@@ -104,12 +104,12 @@ let elementParse = Parse(input: Substring.self, InitializationSequence.Step.init
 let inputParse = Many { elementParse } separator: { "," }
 let initializationSequence = InitializationSequence(steps: try inputParse.parse(String.input))
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     return initializationSequence.HASH
 }
 
-measure(part: .two) { logger in
+measure(part: .two) {
     /* Part Two */
     return initializationSequence.sumOfFocusingPower
 }

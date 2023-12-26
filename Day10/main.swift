@@ -133,19 +133,19 @@ let contents = try gridParser.parse(String.input)
 let grid = Grid(contents: contents)
 let pipeMap = PipeMap(grid: grid)!
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     return pipeMap.loopCoordinates.count / 2
 }
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One - Flood Fill */
     return pipeMap.grid.floodFilled(startingAt: pipeMap.startCoordinate) {
         return $0.element.connections(at: $0.coordinate).contains($1.coordinate)
     }.count(where: { $0.isFilled }) / 2
 }
 
-measure(part: .two) { logger in
+measure(part: .two) {
     /* Part Two */
     return pipeMap.loopEnclosedCoordinates.count
 }

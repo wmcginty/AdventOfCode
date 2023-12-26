@@ -78,7 +78,7 @@ extension Grid<Contents> {
             
             if next.coordinate == end {
                 destinations[next.coordinate] = next.distance
-                continue
+                break
             }
             
             let neighbors = neighbors(of: next.coordinate, respectingSlopes: respectingSlopes)
@@ -141,9 +141,9 @@ extension Grid<Contents> {
 }
 
 measure(part: .one) {
-    return grid.longestHike(from: grid.start, to: grid.end, respectingSlopes: true) ?? -1
+    return grid.longestHike(from: grid.start, to: grid.end, respectingSlopes: true)
 }
 
 measure(part: .two) {
-    return grid.longestHike(from: grid.start, to: grid.end, respectingSlopes: false) ?? -1
+    return grid.longestHike(from: grid.start, to: grid.end, respectingSlopes: false)
 }

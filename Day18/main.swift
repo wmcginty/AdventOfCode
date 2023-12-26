@@ -67,7 +67,7 @@ let inputParser = Many { lineParser } separator: { "\n" }
 let instructions = try inputParser.parse(String.input)
 let instructions2 = instructions.compactMap { $0.extractingHexInstructions }
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     var current = Coordinate.zero
     var coordinates: [Coordinate] = [.zero]
@@ -83,7 +83,7 @@ measure(part: .one) { logger in
     return polygon.interiorLatticePoints()
 }
 
-measure(part: .two) { logger in
+measure(part: .two) {
     /* Part Two */
     var current = Coordinate.zero
     var coordinates: [Coordinate] = [.zero]

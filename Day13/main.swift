@@ -83,7 +83,7 @@ extension Grid<Content> {
     }
 }
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     return grids.reduce(0) { partialResult, grid in
         let vertical = grid.verticalSymmetryLineIndices(withErrorAllowance: 0).map { $0 + 1 }.reduce(0, +)
@@ -93,7 +93,7 @@ measure(part: .one) { logger in
     }
 }
 
-measure(part: .two) { logger in
+measure(part: .two) {
     /* Part Two */
     return grids.reduce(0) { partialResult, grid in
         let vertical = grid.verticalSymmetryLineIndices(withErrorAllowance: 1).map { $0 + 1 }.reduce(0, +)

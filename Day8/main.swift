@@ -100,14 +100,14 @@ let mapParser = Parse(input: Substring.self, Map.init) {
 
 let map = try mapParser.parse(String.input)
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     return map.steps(from: "AAA", endPredicate: { $0 == "ZZZ" })
 }
 
-measure(part: .two) { logger in
+measure(part: .two) {
     /* Part Two */
     let startLocations: [String] = map.nodes.filter { $0.id.hasSuffix("A") }.map(\.id)
     let stepCounts = startLocations.map { map.steps(from: $0, endPredicate: { $0.hasSuffix("Z") }) }
-    return stepCounts.leastCommonMultiple ?? 0
+    return stepCounts.leastCommonMultiple
 }

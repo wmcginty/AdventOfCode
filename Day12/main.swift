@@ -101,12 +101,12 @@ let lineParser = Parse(Row.init) { conditionsParser; countsParser }
 let inputParser = Many { lineParser } separator: { Whitespace(1, .vertical) }
 let rows = try inputParser.parse(String.input)
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     return rows.map(\.countOfValidSolutions).reduce(0, +)
 }
 
-measure(part: .two) { logger in
+measure(part: .two) {
     /* Part Two */
     return rows
         .map { $0.unfolded(times: 5) }

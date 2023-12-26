@@ -101,18 +101,18 @@ extension Grid<Content> {
     func mostEnergizedTiles(fromPossibleStarts starts: [Beam]) -> Int {
         return starts.map {
             return grid.energizedTiles(startingAt: $0.coordinate, direction: $0.direction)
-        }.max(by: \.count)?.count ?? 0
+        }.max(by: \.count)?.count
     }
 }
 
 let grid = try inputParser.parse(String.input)
 
-measure(part: .one) { logger in
+measure(part: .one) {
     /* Part One */
     return grid.energizedTiles(startingAt: .init(x: 0, y: 0), direction: .east).count
 }
 
-measure(part: .two) { logger in
+measure(part: .two) {
     /* Part Two */
     
     let starts: [Beam] = grid.coordinatesForRow(at: 0).map { Beam(coordinate: $0, direction: .south) }
