@@ -22,10 +22,6 @@ enum Contents: String, CaseIterable, CustomStringConvertible {
     var description: String { rawValue }
 }
 
-let lineParser = Many { Contents.parser(of: Substring.self) }
-let inputParser = Many { lineParser } separator: { Whitespace(1, .vertical) }
-let grid = try Grid<Contents>(contents: inputParser.parse(String.input))
-
 extension Grid<Contents> {
     
     struct State: Hashable {
@@ -93,28 +89,32 @@ extension Grid<Contents> {
         return destinations
     }
     
-    func navigationGraph(respectingSlopes: Bool = true, movingToward end: Coordinate) -> [Coordinate: [Coordinate: Int]] {
-        var graph: [Coordinate: [Coordinate: Int]] = [:]
+    func weightedGraph(respectingSlopes: Bool = true, movingToward end: Coordinate) -> WeightedGraph<Coordinate, Int> {
+        let graph = WeightedGraph<Coordinate, Int>()
         var vertices: Deque<Coordinate> = [start]
         var visited: Set<Coordinate> = []
         while let vertex = vertices.popFirst() {
             if visited.contains(vertex) {
                 continue
             }
-            
+
             let destinations = self.vertices(connectedTo: vertex, respectingSlopes: respectingSlopes, movingToward: end)
-            graph[vertex] = destinations
-            
+            for destination in destinations {
+                if destination.key != vertex {
+                    graph.addEdge(.directed, from: vertex, to: destination.key, weight: destination.value)
+                }
+            }
+
             vertices.append(contentsOf: destinations.keys)
             visited.insert(vertex)
         }
 
         return graph
     }
-        
+
     func longestHike(from start: Coordinate, to end: Coordinate, respectingSlopes: Bool) -> Int? {
-        let graph = navigationGraph(respectingSlopes: respectingSlopes, movingToward: end)
-    
+        let graph = weightedGraph(respectingSlopes: respectingSlopes, movingToward: end)
+
         var stepCounts: [Int] = []
         var deque: Deque<State> = [.init(coordinate: start, stepCount: 0, visited: [start])]
         while let next = deque.popLast() {
@@ -122,16 +122,17 @@ extension Grid<Contents> {
                 stepCounts.append(next.stepCount)
                 continue
             }
-                              
-            if let distancesToNextVertices = graph[next.coordinate] {
-                for (coordinate, distance) in distancesToNextVertices {
-                    if next.visited.contains(coordinate) {
+                
+            if let distancesToNextVertices = graph.edges(from: next.coordinate) {
+                for edge in distancesToNextVertices {
+                    let destination = edge.destination.value
+                    if next.visited.contains(destination) {
                         continue
                     }
-                    
-                    deque.append(.init(coordinate: coordinate,
-                                       stepCount: next.stepCount + distance,
-                                       visited: next.visited + [coordinate]))
+
+                    deque.append(.init(coordinate: destination,
+                                       stepCount: next.stepCount + edge.weight,
+                                       visited: next.visited + [destination]))
                 }
             }
         }
@@ -139,6 +140,10 @@ extension Grid<Contents> {
         return stepCounts.max()
     }
 }
+
+let lineParser = Many { Contents.parser(of: Substring.self) }
+let inputParser = Many { lineParser } separator: { Whitespace(1, .vertical) }
+let grid = try Grid<Contents>(contents: inputParser.parse(String.input))
 
 measure(part: .one) {
     return grid.longestHike(from: grid.start, to: grid.end, respectingSlopes: true)
