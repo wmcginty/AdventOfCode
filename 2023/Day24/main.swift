@@ -10,7 +10,6 @@ import Algorithms
 import Collections
 import Foundation
 import Parsing
-import SwiftZ3
 
 struct Point {
     

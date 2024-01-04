@@ -16,27 +16,22 @@ let componentParser = Parse(input: Substring.self) {
     ": "
     Many { Prefix(1...) { $0 != " " && $0 != "\n" } } separator: { Whitespace(.horizontal) }
 }
-let inputParser = Many { componentParser } separator: {
-    Whitespace(1, .vertical)
-}
 
-let components = try inputParser.parse(String.testInput)
-var componentDictionary: [String: Set<String>] = [:]
+let inputParser = Many { componentParser } separator: { Whitespace(.vertical) }
+let components = try inputParser.parse(String.input)
 
+var graph = UnweightedGraph<String>()
 for component in components {
-    
     let left = String(component.0)
-    let right = component.1
-    for c in right {
-        componentDictionary[left, default: []].insert(String(c))
-        componentDictionary[String(c), default: []].insert(left)
+    for subcomponent in component.1 {
+        graph.addEdge(.undirected, from: left, to: String(subcomponent))
     }
 }
 
-for (key, value) in componentDictionary {
-    print(key, value)
-}
-
 measure(part: .one) {
-    /* Sigh. It was honestly easier to learn some more Python and use a library... */
+    // This works. It takes FOREVER on the real input - 8m 17s - but it does get the correct answer. Definitely would stick with NetworkX in the future (see Python solution).
+    let minCut = graph.kargersMinimumCut(iterations: 100)
+    let subsets = minCut.distinctSubsets(of: graph)
+    let product = subsets.map(\.count).reduce(1, *)
+    return product
 }
